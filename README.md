@@ -29,6 +29,7 @@
 | <img src="assets/img/bch_core.png"> | <img src="assets/img/avalon_iface.png"> | <img src="assets/img/qsys_layout.png"> |
 
 ## 🗂️ Project Structure
+```bash
 BCHDecoderVHDL/
 ├── src/ # VHDL source files (core, control, interface)
 ├── sim/ # VHDL testbenches
@@ -36,6 +37,7 @@ BCHDecoderVHDL/
 ├── quartus_project/ # Quartus project targeting DE0-CV
 ├── sw/ # Nios II C code
 └── assets/img/ # Documentation images
+```
 
 ## 📦 Use Cases
 - ✅ Embedded communication systems

@@ -1,0 +1,43 @@
+# # File gsaved with Nlview version 6.3.8  2013-12-19 bk=1.2992 VDI=34 GEI=35
+# 
+preplace inst DE0_CV_QSYS.sd_cmd -pg 1 -lvl 5 -y 470
+preplace inst DE0_CV_QSYS.keys -pg 1 -lvl 5 -y 330
+preplace inst DE0_CV_QSYS.timer -pg 1 -lvl 5 -y 230
+preplace inst DE0_CV_QSYS.seg7_digits -pg 1 -lvl 5 -y 670
+preplace inst DE0_CV_QSYS.sysid_qsys -pg 1 -lvl 5 -y 850
+preplace inst DE0_CV_QSYS.switches -pg 1 -lvl 5 -y 1130
+preplace inst DE0_CV_QSYS.sdram -pg 1 -lvl 5 -y 1030
+preplace inst DE0_CV_QSYS.sd_clk -pg 1 -lvl 5 -y 30
+preplace inst DE0_CV_QSYS.pll -pg 1 -lvl 3 -y 430
+preplace inst DE0_CV_QSYS.nios2_qsys.cpu -pg 1
+preplace inst DE0_CV_QSYS.clk_50 -pg 1 -lvl 2 -y 410
+preplace inst DE0_CV_QSYS.onchip_mem -pg 1 -lvl 5 -y 770
+preplace inst DE0_CV_QSYS.leds -pg 1 -lvl 5 -y 930
+preplace inst DE0_CV_QSYS.nios2_qsys.reset_bridge -pg 1
+preplace inst DE0_CV_QSYS.sd_dat -pg 1 -lvl 5 -y 570
+preplace inst DE0_CV_QSYS.nios2_qsys.clock_bridge -pg 1
+preplace inst DE0_CV_QSYS.nios2_qsys -pg 1 -lvl 2 -y 160
+preplace inst DE0_CV_QSYS.mm_clock_crossing_bridge_0 -pg 1 -lvl 4 -y 130
+preplace inst DE0_CV_QSYS.jtag_uart -pg 1 -lvl 5 -y 130
+preplace inst DE0_CV_QSYS -pg 1 -lvl 1 -y 40 -regy -20
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)DE0_CV_QSYS.sdram_wire,(SLAVE)sdram.wire) 1 0 5 NJ 1100 NJ 1100 NJ 1100 NJ 1100 NJ
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)sd_clk.external_connection,(SLAVE)DE0_CV_QSYS.sd_clk) 1 0 5 NJ 60 NJ 60 NJ 60 NJ 60 NJ
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)leds.external_connection,(SLAVE)DE0_CV_QSYS.leds_wire) 1 0 5 NJ 960 NJ 960 NJ 960 NJ 960 NJ
+preplace netloc FAN_OUT<net_container>DE0_CV_QSYS</net_container>(SLAVE)sd_clk.clk,(SLAVE)leds.clk,(SLAVE)timer.clk,(SLAVE)seg7_digits.clk,(SLAVE)mm_clock_crossing_bridge_0.m0_clk,(SLAVE)sd_dat.clk,(SLAVE)keys.clk,(MASTER)pll.outclk2,(SLAVE)sysid_qsys.clk,(SLAVE)sd_cmd.clk,(SLAVE)switches.clk) 1 3 2 1110 480 1300
+preplace netloc FAN_OUT<net_container>DE0_CV_QSYS</net_container>(SLAVE)nios2_qsys.clk,(MASTER)pll.outclk0,(SLAVE)sdram.clk,(SLAVE)onchip_mem.clk1,(SLAVE)mm_clock_crossing_bridge_0.s0_clk,(SLAVE)jtag_uart.clk) 1 1 4 160 120 NJ 270 1050 440 1400
+preplace netloc FAN_OUT<net_container>DE0_CV_QSYS</net_container>(SLAVE)leds.s1,(SLAVE)sysid_qsys.control_slave,(SLAVE)seg7_digits.s1,(SLAVE)sd_clk.s1,(SLAVE)keys.s1,(SLAVE)timer.s1,(SLAVE)sd_cmd.s1,(MASTER)mm_clock_crossing_bridge_0.m0,(SLAVE)sd_dat.s1,(SLAVE)switches.s1) 1 4 1 1380
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)DE0_CV_QSYS.sd_cmd,(SLAVE)sd_cmd.external_connection) 1 0 5 NJ 520 NJ 520 NJ 520 NJ 500 NJ
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)clk_50.clk_in_reset,(SLAVE)DE0_CV_QSYS.reset) 1 0 2 NJ 440 NJ
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)clk_50.clk_in,(SLAVE)DE0_CV_QSYS.clk) 1 0 2 NJ 420 NJ
+preplace netloc POINT_TO_POINT<net_container>DE0_CV_QSYS</net_container>(SLAVE)pll.refclk,(MASTER)clk_50.clk) 1 2 1 830
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)DE0_CV_QSYS.seg7_digits_wire,(SLAVE)seg7_digits.external_connection) 1 0 5 NJ 700 NJ 700 NJ 700 NJ 700 NJ
+preplace netloc FAN_OUT<net_container>DE0_CV_QSYS</net_container>(SLAVE)jtag_uart.irq,(MASTER)nios2_qsys.irq,(SLAVE)timer.irq,(SLAVE)keys.irq) 1 2 3 NJ 250 NJ 100 1360
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)sd_dat.external_connection,(SLAVE)DE0_CV_QSYS.sd_dat) 1 0 5 NJ 600 NJ 600 NJ 600 NJ 600 NJ
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(MASTER)pll.outclk1,(MASTER)DE0_CV_QSYS.clk_sdram) 1 3 3 NJ 460 NJ 460 NJ
+preplace netloc INTERCONNECT<net_container>DE0_CV_QSYS</net_container>(SLAVE)jtag_uart.reset,(SLAVE)pll.reset,(SLAVE)switches.reset,(SLAVE)sdram.reset,(MASTER)clk_50.clk_reset,(SLAVE)sd_cmd.reset,(SLAVE)keys.reset,(SLAVE)nios2_qsys.reset,(SLAVE)timer.reset,(SLAVE)seg7_digits.reset,(SLAVE)sysid_qsys.reset,(SLAVE)sd_clk.reset,(SLAVE)onchip_mem.reset1,(SLAVE)sd_dat.reset,(SLAVE)mm_clock_crossing_bridge_0.s0_reset,(MASTER)nios2_qsys.debug_reset_request,(SLAVE)mm_clock_crossing_bridge_0.m0_reset,(SLAVE)leds.reset) 1 1 4 180 320 850 310 1070 120 1340
+preplace netloc INTERCONNECT<net_container>DE0_CV_QSYS</net_container>(SLAVE)nios2_qsys.debug_mem_slave,(SLAVE)onchip_mem.s1,(SLAVE)jtag_uart.avalon_jtag_slave,(SLAVE)mm_clock_crossing_bridge_0.s0,(MASTER)nios2_qsys.instruction_master,(SLAVE)sdram.s1,(MASTER)nios2_qsys.data_master) 1 1 4 160 300 830 290 1090 260 1320
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)pll.locked,(SLAVE)DE0_CV_QSYS.pll_locked) 1 0 3 NJ 480 NJ 480 NJ
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)DE0_CV_QSYS.keys_wire,(SLAVE)keys.external_connection) 1 0 5 NJ 360 NJ 360 NJ 360 NJ 360 NJ
+preplace netloc EXPORT<net_container>DE0_CV_QSYS</net_container>(SLAVE)switches.external_connection,(SLAVE)DE0_CV_QSYS.switches_wire) 1 0 5 NJ 1160 NJ 1160 NJ 1160 NJ 1160 NJ
+levelinfo -pg 1 0 110 1690
+levelinfo -hier DE0_CV_QSYS 120 140 590 900 1170 1450 1600

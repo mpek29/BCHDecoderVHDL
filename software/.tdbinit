@@ -1,0 +1,5 @@
+#! nios2-elf-gdb
+target remote localhost:2342
+load
+tbreak main
+continue

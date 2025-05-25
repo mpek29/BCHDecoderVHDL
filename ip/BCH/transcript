@@ -1,6 +1,46 @@
 # Reading pref.tcl
-# OpenFile C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH_DECODER/bch_decoder.vhd
-# Loading project SimBCH_DECODER
-# Compile of bch_decoder.vhd was successful.
+# OpenFile C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd
+vcom -reportprogress 300 -work work C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 11:02:02 on May 25,2025
+# vcom -reportprogress 300 -work work C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd 
+# ** Error: (vcom-66) Execution of vlib.exe failed. Please check the error log for more details.
+# End time: 11:02:02 on May 25,2025, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# Loading project SimBCH
+# Compile of bch.vhd failed with 53 errors.
 # Compile of FIFO_nMots_mBits.vhd was successful.
-# 2 compiles, 0 failed with no errors.
+# 2 compiles, 1 failed with 53 errors.
+# Compile of bch.vhd failed with 50 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 50 errors.
+# Compile of bch.vhd failed with 44 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 44 errors.
+# Compile of bch.vhd failed with 43 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 43 errors.
+# Compile of bch.vhd failed with 42 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 42 errors.
+# Compile of bch.vhd failed with 33 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 33 errors.
+# Compile of bch.vhd failed with 29 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 29 errors.
+# Compile of bch.vhd failed with 28 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 28 errors.
+# Compile of bch.vhd failed with 28 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 28 errors.
+# Compile of bch.vhd failed with 25 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 25 errors.
+# Compile of bch.vhd failed with 19 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 19 errors.
+# Compile of bch.vhd failed with 17 errors.
+# Compile of FIFO_nMots_mBits.vhd was successful.
+# 2 compiles, 1 failed with 17 errors.

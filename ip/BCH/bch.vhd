@@ -64,6 +64,24 @@ architecture bch of BCH is
     signal search_end_1  : std_logic := '0';           -- indicateur de fin de la premiere recherche
     signal search_end_2  : std_logic := '0';           -- indicateur de fin de la seconde recherche
 
+    -- Signaux internes FSM
+    signal LdDec    : std_logic := '0';
+    signal compa    : std_logic := '0';
+    signal start_check_1    : std_logic := '0';
+    signal start_check_2   : std_logic := '0';
+
+    -- Table des syndromes (ROM)
+    type syndrome_table_type is array (0 to 31) of std_logic_vector(9 downto 0);
+    constant SYNDROME_TABLE : syndrome_table_type := (
+        "0000000001","0000000010", "0000000100", "0000001000", "0000010000",
+        "0000100000", "0001000000", "0010000000", "0100000000", "1000000000",
+        "0010110111", "0101101110", "1011011100", "0100001111", "1000011110",
+        "0010001011", "0100010110", "1000101100", "0011101111", "0111011110",
+        "1110111100", "1111001111", "1100101001", "1011100101", "0101111101",
+        "1011111010", "0101000011", "1010000110", "0110111011", "1101110110",
+        "1001011011"
+    );
+
 begin
 
     -- =========================================================================
@@ -101,17 +119,17 @@ begin
     Decoder : process(Addr, Rd, Wr)
     begin
         ldCtrl  <= '0';
-        RdOut   <= '1';
+        RdOut   <= "00";
         wrFifo  <= '0';
 
         case Addr is
             when "00" =>
                 if Rd = '1' then -- read only
-                    RdOut <= '00';
+                    RdOut <= "00";
                 end if;
             when "01" =>
                 if Rd = '1' then -- read
-                    RdOut <= '01';
+                    RdOut <= "01";
                 end if;
                 if Wr = '1' then -- write
                     ldCtrl <= '1';
@@ -119,7 +137,7 @@ begin
 
             when "10" =>
                 if Rd = '1' then -- read
-                    RdOut <= '10';
+                    RdOut <= "10";
                 end if;
                 if Wr = '1' then -- write
                     ldFifoOut <= '1';
@@ -141,7 +159,7 @@ begin
             when "01" =>
                 DataOut <= BCHControl;
 			when "10" =>
-                DataOut <= BCHFifoOut;
+                DataOut <= DataOutFifo;
             when others =>
                 DataOut <= (others => '0');
         end case;
@@ -154,7 +172,7 @@ begin
     begin
         if rising_edge(Clk) then
             if LdDec = '1' then
-                shift_reg <= D_in;
+                shift_reg <= DataOutFifo;
             else
                 shift_reg(30 downto 0) <= shift_reg(6 downto 1);
                 shift_reg(31) <= '0';
@@ -180,15 +198,15 @@ begin
 			
 			if nb_stroke >= 0 then
 				syndrome(0) <= serial_out;
-				syndrome(1) <= serial_out ^ syndrome(0);
-				syndrome(2) <= serial_out ^ syndrome(1);
-				syndrome(3) <= serial_out ^ syndrome(2);
-				syndrome(4) <= serial_out ^ syndrome(3);
-				syndrome(5) <= serial_out ^ syndrome(4);
-				syndrome(6) <= serial_out ^ syndrome(5);
-				syndrome(7) <= serial_out ^ syndrome(6);
-				syndrome(8) <= serial_out ^ syndrome(7);
-				syndrome(9) <= serial_out ^ syndrome(8);
+				syndrome(1) <= serial_out xor syndrome(0);
+				syndrome(2) <= serial_out xor syndrome(1);
+				syndrome(3) <= serial_out xor syndrome(2);
+				syndrome(4) <= serial_out xor syndrome(3);
+				syndrome(5) <= serial_out xor syndrome(4);
+				syndrome(6) <= serial_out xor syndrome(5);
+				syndrome(7) <= serial_out xor syndrome(6);
+				syndrome(8) <= serial_out xor syndrome(7);
+				syndrome(9) <= serial_out xor syndrome(8);
 			end if;
 		end if;
     end process;
@@ -201,7 +219,7 @@ begin
     begin
         if rising_edge(Clk) then
         -- Comparaison type 1 (une seule erreur)
-            if compa = "00" then
+            if compa = '0' then
                 -- Decompteur avec load au debut de la recherche
                 if start_check_1 = '1' then
                     p2 <= 30;
@@ -218,7 +236,7 @@ begin
             end if;
 
         -- Comparaison type 2 (deux erreurs)
-        elsif compa = "01" then
+        elsif compa = '1' then
         -- Decompteur avec load au debut de la recherche
             if start_check_2 = '1' then
                 p2 <= 30;
@@ -262,7 +280,7 @@ begin
     -- =========================================================================
     -- Combinational Process : Mux
     -- =========================================================================
-    Mux : process(Addr, D_in, DataOutFifo_corrected)
+    Mux : process(Addr, DataIn, DataOutFifo_corrected)
     begin
         case Addr is
             when '0' =>

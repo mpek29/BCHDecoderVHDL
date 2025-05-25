@@ -71,7 +71,7 @@ begin
             if synRst_n = '0' then
                 BCHStatus <= (others => '0');  -- Reset de BCHStatus
             else
-				BCHStatus(2) <= Done;   -- Adresse 6 prend la valeur de Full
+                BCHStatus(2) <= Done;   -- Adresse 6 prend la valeur de Full
                 BCHStatus(6) <= FifoFull;   -- Adresse 6 prend la valeur de Full
                 BCHStatus(7) <= FifoEmpty;  -- Adresse 7 prend la valeur de Empty
             end if;
@@ -126,7 +126,7 @@ begin
         end case;
     end process Decoder;
 
-	-- =========================================================================
+    -- =========================================================================
     -- Combinational Process : Mux
     -- =========================================================================
     Mux : process(RdOut, BCHStatus, BCHControl)
@@ -189,7 +189,7 @@ begin
 		end if;
     end process;
 
-    -- =========================================================================
+	-- =========================================================================
 	-- Synchronous Process : Error_Locator
 	-- =========================================================================
 

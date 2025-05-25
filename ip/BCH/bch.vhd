@@ -35,7 +35,7 @@ architecture bch of BCH is
 
     -- Signaux internes BCHControl
     signal BCHControl    : std_logic_vector(7 downto 0);
-	signal razControl  : std_logic := '0';
+    signal razControl  : std_logic := '0';
 
     -- Signaux internes Decodeur
     signal RdOut : std_logic_vector(1 downto 0) := "00";
@@ -44,21 +44,21 @@ architecture bch of BCH is
     
     -- Signaux internes FIFO
     signal DataOutFifo  : std_logic_vector(7 downto 0);
-	signal ldFifoOut : std_logic := '0';
+    signal ldFifoOut : std_logic := '0';
 
     -- Signaux ShiftRegister
-	signal shift_reg : std_logic_vector(31 downto 0);
-	signal serial_out : std_logic;
+    signal shift_reg : std_logic_vector(31 downto 0);
+    signal serial_out : std_logic;
 
     -- Signaux Syndrome_Calculator
-	signal syndrome : std_logic_vector(9 downto 0);
-	signal start_syndrome : std_logic;
-	signal nb_stroke : integer range 0 to 31 := 0;
-	signal done_syndrome : std_logic;
+    signal syndrome : std_logic_vector(9 downto 0);
+    signal start_syndrome : std_logic;
+    signal nb_stroke : integer range 0 to 31 := 0;
+    signal done_syndrome : std_logic;
 
     -- Signaux Error_Locator
-	signal p1 : integer range -1 to 30 := -1; -- commence à -1 (avant le premier élément)
-	signal p2 : integer range 0 to 31 := 0;
+    signal p1 : integer range -1 to 30 := -1; -- commence à -1 (avant le premier élément)
+    signal p2 : integer range 0 to 31 := 0;
 
 begin
 

@@ -117,7 +117,7 @@ begin
                 if Rd = '1' then -- read
                     RdOut <= '10';
                 end if;
-				if Wr = '1' then -- write
+                if Wr = '1' then -- write
                     ldFifoOut <= '1';
                 end if;
 

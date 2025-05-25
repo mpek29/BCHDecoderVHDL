@@ -23,20 +23,20 @@
 | 🖥️ **Quartus Project** | Integrated via Qsys / Platform Designer |
 | 📦 **Open-source** | Fully modifiable and extensible HDL source code |
 
-## 📐 Design Architecture Preview  
-| 🔧 Decoder Core | 🔗 Avalon Interface | 🖥️ Quartus System |
-|------------------|----------------------|--------------------|
-| <img src="assets/img/bch_core.png"> | <img src="assets/img/avalon_iface.png"> | <img src="assets/img/qsys_layout.png"> |
+## 📐 Design Architecture Preview
+| ⚙️ Internal Architecture | 🖥️ Qsys Integration |
+|--------------------------|----------------------|
+| <img src="assets/img/bch_core_architecture.png"> | <img src="assets/img/qsys_layout.png"> |
 
 ## 🗂️ Project Structure
 ```bash
 BCHDecoderVHDL/
-├── src/ # VHDL source files (core, control, interface)
-├── sim/ # VHDL testbenches
-├── qsys/ # Qsys/Platform Designer files
-├── quartus_project/ # Quartus project targeting DE0-CV
-├── sw/ # Nios II C code
-└── assets/img/ # Documentation images
+├── ip/                  
+│   └── BCH/                
+│       ├── bch.vhd         # VHDL source files
+│       └── simulation/     # VHDL testbenches
+├── DE0_CV.qpf              # Quartus project file
+├── software/               # Scripts or files related to software development
 ```
 
 ## 📦 Use Cases

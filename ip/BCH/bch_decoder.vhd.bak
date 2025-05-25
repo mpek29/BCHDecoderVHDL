@@ -1,0 +1,66 @@
+-- *****************************************************
+-- **                    BCH                          **
+-- **  32 bits device for Altera/Avalon interface     **
+-- *****************************************************
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+entity bch is
+	port(
+		Clk, Reset_n, WritePWM, ReadPWM : in std_logic;
+		OutPWM : out std_logic;
+		RegsAddr : in std_logic_vector(2 downto 0);
+		DInPWM : in std_logic_vector(31 downto 0);
+		DOutPWM : out std_logic_vector(31 downto 0);
+		IrqPWM : out std_logic
+		);
+end entity bch;
+
+
+architecture rtl of bch_decoder is
+signal SynRst_n0, SynRst_n1 : std_logic;
+signal ldDC, ldP, SetCtrl, ClrCtrl, ldNbCyc : std_logic;
+signal IrqEn, Start : std_logic;
+signal razIrq, setIrq, IrqRq, PulseState, PWMState : std_logic;
+signal EndPulse, Pulse, EndCycles : std_logic;
+signal DCycle, Period, DCnt : std_logic_vector(31 downto 0);
+signal NbCyc, CntCyc : std_logic_vector(15 downto 0);
+
+constant Zero8 : std_logic_vector(7 downto 0) := "00000000";
+
+begin
+
+-- Reset synchronization
+Rst : process(Reset_n, Clk)
+begin
+	if(Reset_n = '0') then
+		SynRst_n0 <= '0';
+		SynRst_n1 <= '0';
+	elsif(rising_edge(Clk)) then
+		SynRst_n0 <= '1';
+		SynRst_n1 <= SynRst_n0;
+	end if;
+end process Rst;				
+
+-- Decoder
+razIrq <=	'1' when (ReadPWM = '1' and RegsAddr = "000") else
+			'0';
+            
+SetCtrl <=  '1' when (WritePWM = '1' and RegsAddr = "000") else
+			'0';
+
+ldP <=		'1' when (WritePWM = '1' and RegsAddr = "001") else
+		    '0';
+
+ldDC <=		'1' when (WritePWM = '1' and RegsAddr = "010") else
+			'0';
+
+ldNbCyc <=	'1' when (WritePWM = '1' and RegsAddr = "011") else
+			'0';
+            
+ClrCtrl <=  '1' when (WritePWM = '1' and RegsAddr = "100") else
+			'0';
+
+end architecture rtl;

@@ -1,0 +1,63 @@
+-- =========================================================================
+-- Synchronous Process : Error_Locator
+-- =========================================================================
+
+-- Signaux Error_Locator
+signal p1          : integer range -1 to 29 := -1;
+signal p2          : integer range 0 to 30 := 0;
+signal match_found : std_logic := '0';           -- indicateur de fin de recherche avec succès
+signal search_end_1  : std_logic := '0';           -- indicateur de fin de la premiere recherche
+signal search_end_2  : std_logic := '0';           -- indicateur de fin de la seconde recherche
+
+Error_Locator : process(Clk)
+begin
+    if rising_edge(Clk) then
+
+        -- Reset des indicateurs en début de recherche
+        if start_check_1 = '1' or start_check_2 = '1' then
+            search_end_1 <= '0';
+            search_end_2 <= '0';
+            match_found <= '0';
+        end if;
+
+        -- Comparaison type 1 (une seule erreur)
+        if compa = "00" then
+            -- Decompteur avec load au debut de la recherche
+            if start_check_1 = '1' then
+                p2 <= 30;
+            elsif p2 > 0 then
+                p2 <= p2 - 1;
+            end if;
+
+            if syndrome = SYNDROME_TABLE(p2) then
+                search_end_1 <= '1';
+                match_found <= '1';
+            elsif p2 = 0 then
+                search_end_1 <= '1';
+                match_found <= '0';
+            end if;
+
+        -- Comparaison type 2 (deux erreurs)
+        elsif compa = "01" then
+            -- Decompteur avec load au debut de la recherche
+            if start_check_2 = '1' then
+                p2 <= 30;
+                p1 <= 29;
+            elsif p2 = 0 then
+                p1 <= p1 - 1;
+                p2 <= 30;
+            elsif p2 > 0 then
+                p2 <= p2 - 1;
+            end if;
+
+            if syndrome = (SYNDROME_TABLE(p1) xor SYNDROME_TABLE(p2)) then
+                search_end <= '1';
+                match_found <= '1';
+            elsif p1 = 0 then
+                search_end_1 <= '1';
+                match_found <= '0';
+            end if;
+
+        end if;
+    end if;
+end process;

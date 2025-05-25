@@ -1,0 +1,14 @@
+-- Genere la valeur de p2
+			if LdDCpt = '1' then
+				p2 <= 31;
+			elsif (p2 > 0) and (countdown_p2 = '1') then
+				p2 <= p2 - 1;
+			else
+				p2 <= p2; -- maintien de la valeur
+			end if;
+			
+			-- Comparer syndrome avec SYNDROME_TABLE(p2)
+            if syndrome = SYNDROME_TABLE(p2) then
+				-- Erreur unique détectée
+                match_pos   <= p2;
+                match_found <= '1';  -- signal de fin de recherche

@@ -1,0 +1,84 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+-- ============================================================================
+-- Entity Declaration : BCH
+-- ============================================================================
+
+entity bch is
+	port(
+		Clk, Reset_n, Wr, Rd : in std_logic;
+		Addr : in std_logic_vector(2 downto 0);
+		D_in : in std_logic_vector(31 downto 0);
+		D_out : out std_logic_vector(31 downto 0);
+		Irq_BCH_n : out std_logic
+		);
+end entity bch;
+
+-- ============================================================================
+-- Architecture Definition : BCH
+-- ============================================================================
+architecture rtl of bch is
+signal SynRst_n0, SynRst_n1 : std_logic;
+
+begin
+
+-- =========================================================================
+-- Synchronous Reset Synchronization
+-- =========================================================================
+Rst : process(Reset_n, Clk)
+begin
+	if(Reset_n = '0') then
+		SynRst_n0 <= '0';
+		SynRst_n1 <= '0';
+	elsif(rising_edge(Clk)) then
+		SynRst_n0 <= '1';
+		SynRst_n1 <= SynRst_n0;
+	end if;
+end process Rst;				
+
+-- Decoder
+xxx <=	'1' when (Rd = '1' and Addr = "000") else
+			'0';
+            
+xxx <=  '1' when (Wr = '1' and Addr = "000") else
+			'0';
+
+xxx <=		'1' when (Wr = '1' and Addr = "001") else
+		    '0';
+
+xxx <=		'1' when (Wr = '1' and Addr = "010") else
+			'0';
+
+xxx <=	'1' when (Wr = '1' and Addr = "011") else
+			'0';
+            
+xxx <=  '1' when (Wr = '1' and Addr = "100") else
+			'0';
+-- =========================================================================
+-- Instanciation de la FIFO
+-- =========================================================================
+FIFO : entity work.FIFO_nMots_mBits
+  port map (
+   Horloge    => Clk,
+   -- FSM
+   initFifo   => init,
+   FifoLevel  => open,
+        
+   -- Decoder
+   WrFifo     => wrFifo,
+        
+   -- FSM
+   RdFifo     => RdFifo,
+        
+   -- Status
+   FifoEmpty  => FifoEmpty,
+   FifoFull   => FifoFull,
+        
+   DataIn     => DataIn,
+        
+   DataOut    => DataOutFifo   
+);
+
+end architecture rtl;

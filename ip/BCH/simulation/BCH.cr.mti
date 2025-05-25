@@ -1,0 +1,25 @@
+C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd {1 {vcom -work work -2002 -explicit -stats=none {C:\Users\Flori\Documents\Project\Tech\Electronics\digital-system-design\BCHDecoderVHDL\ip\BCH\FIFO_nMots_mBits.vhd}
+Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity FIFO_nMots_mBits
+-- Compiling architecture rtl of FIFO_nMots_mBits
+
+} {} {}} C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd {0 {vcom -work work -2002 -explicit -stats=none {C:\Users\Flori\Documents\Project\Tech\Electronics\digital-system-design\BCHDecoderVHDL\ip\BCH\bch.vhd}
+Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity BCH
+-- Compiling architecture bch of BCH
+** Error: C:\Users\Flori\Documents\Project\Tech\Electronics\digital-system-design\BCHDecoderVHDL\ip\BCH\bch.vhd(95): near "'": syntax error
+** Error: C:\Users\Flori\Documents\Project\Tech\Electronics\digital-system-design\BCHDecoderVHDL\ip\BCH\bch.vhd(99): near "'": syntax error
+** Error: C:\Users\Flori\Documents\Project\Tech\Electronics\digital-system-design\BCHDecoderVHDL\ip\BCH\bch.vhd(107): near "'": syntax error
+** Error: C:\Users\Flori\Documents\Project\Tech\Electronics\digital-system-design\BCHDecoderVHDL\ip\BCH\bch.vhd(110): Illegal target for signal assignment.
+** Error: C:\Users\Flori\Documents\Project\Tech\Electronics\digital-system-design\BCHDecoderVHDL\ip\BCH\bch.vhd(110): (vcom-1136) Unknown identifier "ldFifoOut".
+** Error: C:\Users\Flori\Documents\Project\Tech\Electronics\digital-system-design\BCHDecoderVHDL\ip\BCH\bch.vhd(124): near "'": syntax error
+
+} {9.0 15.0} {}}

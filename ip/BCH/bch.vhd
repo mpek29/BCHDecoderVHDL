@@ -109,7 +109,7 @@ begin
                 if Rd = '1' then -- read
                     RdOut <= '01';
                 end if;
-				if Wr = '1' then -- write
+                if Wr = '1' then -- write
                     ldCtrl <= '1';
                 end if;
 

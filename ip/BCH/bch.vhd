@@ -57,10 +57,6 @@ architecture bch of BCH is
     signal done_syndrome : std_logic;
 
     -- Signaux Error_Locator
-    signal p1 : integer range -1 to 30 := -1; -- commence à -1 (avant le premier élément)
-    signal p2 : integer range 0 to 31 := 0;
-
-    -- Signaux Error_Locator
     signal p1          : integer range -1 to 29 := -1;
     signal p2          : integer range 0 to 30 := 0;
     signal no_match    : std_logic := '0';

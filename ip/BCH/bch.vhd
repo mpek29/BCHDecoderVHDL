@@ -60,6 +60,14 @@ architecture bch of BCH is
     signal p1 : integer range -1 to 30 := -1; -- commence à -1 (avant le premier élément)
     signal p2 : integer range 0 to 31 := 0;
 
+    -- Signaux Error_Locator
+    signal p1          : integer range -1 to 29 := -1;
+    signal p2          : integer range 0 to 30 := 0;
+    signal no_match    : std_logic := '0';
+    signal match_found : std_logic := '0';           -- indicateur de fin de recherche avec succès
+    signal search_end_1  : std_logic := '0';           -- indicateur de fin de la premiere recherche
+    signal search_end_2  : std_logic := '0';           -- indicateur de fin de la seconde recherche
+
 begin
 
     -- =========================================================================
@@ -162,7 +170,7 @@ begin
     -- =========================================================================
     -- Synchronous Process : Syndrome_Calculator
     -- =========================================================================
-	Syndrome_Calculator : process (Clk)
+    Syndrome_Calculator : process (Clk)
     begin
         if rising_edge(Clk) then
 			-- Decompteur avec load au debut du calc
@@ -189,90 +197,76 @@ begin
 		end if;
     end process;
 
-	-- =========================================================================
-	-- Synchronous Process : Error_Locator
-	-- =========================================================================
+    -- =========================================================================
+    -- Synchronous Process : Error_Locator
+    -- =========================================================================
 
-	-- Signaux Error_Locator
-	signal p1          : integer range -1 to 29 := -1;
-	signal p2          : integer range 0 to 30 := 0;
-	signal no_match    : std_logic := '0';
-	signal match_found : std_logic := '0';           -- indicateur de fin de recherche avec succès
-	signal search_end_1  : std_logic := '0';           -- indicateur de fin de la premiere recherche
-	signal search_end_2  : std_logic := '0';           -- indicateur de fin de la seconde recherche
+    Error_Locator : process(Clk)
+    begin
+        if rising_edge(Clk) then
+        -- Comparaison type 1 (une seule erreur)
+            if compa = "00" then
+                -- Decompteur avec load au debut de la recherche
+                if start_check_1 = '1' then
+                    p2 <= 30;
+                elsif p2 > 0 then
+                    p2 <= p2 - 1;
+                end if;
 
-	Error_Locator : process(Clk)
-	begin
-		if rising_edge(Clk) then
+            if syndrome = SYNDROME_TABLE(p2) then
+                search_end_1 <= '1';
+                match_found <= '1';
+            elsif p2 = 0 then
+                search_end_1 <= '1';
+                match_found <= '0';
+            end if;
 
-			-- Comparaison type 1 (une seule erreur)
-			if compa = "00" then
-				-- Decompteur avec load au debut de la recherche
-				if start_check_1 = '1' then
-					p2 <= 30;
-				elsif p2 > 0 then
-					p2 <= p2 - 1;
-				end if;
+        -- Comparaison type 2 (deux erreurs)
+        elsif compa = "01" then
+        -- Decompteur avec load au debut de la recherche
+            if start_check_2 = '1' then
+                p2 <= 30;
+                p1 <= 29;
+            elsif p2 = 0 then
+                p1 <= p1 - 1;
+                p2 <= 30;
+            elsif p2 > 0 then
+                p2 <= p2 - 1;
+            end if;
 
-				if syndrome = SYNDROME_TABLE(p2) then
-					search_end_1 <= '1';
-					match_found <= '1';
-				elsif p2 = 0 then
-					search_end_1 <= '1';
-					match_found <= '0';
-				end if;
-
-			-- Comparaison type 2 (deux erreurs)
-			elsif compa = "01" then
-				-- Decompteur avec load au debut de la recherche
-				if start_check_2 = '1' then
-					p2 <= 30;
-					p1 <= 29;
-				elsif p2 = 0 then
-					p1 <= p1 - 1;
-					p2 <= 30;
-				elsif p2 > 0 then
-					p2 <= p2 - 1;
-				end if;
-
-				if syndrome = (SYNDROME_TABLE(p1) xor SYNDROME_TABLE(p2)) then
-					search_end_2 <= '1';
-					match_found <= '1';
-				elsif p1 = 0 then
-					search_end_2 <= '1';
-					match_found <= '0';
-				end if;
-
-			end if;
-		end if;
-	end process;
+            if syndrome = (SYNDROME_TABLE(p1) xor SYNDROME_TABLE(p2)) then
+                search_end_2 <= '1';
+                match_found <= '1';
+            elsif p1 = 0 then
+                search_end_2 <= '1';
+                match_found <= '0';
+            end if;
+        end if;
+    end process;
 
     -- =========================================================================
     -- Combinational Process : Error_Corrector
     -- =========================================================================
+    Error_Locator : process(match_found)
+        variable DataOutFifo_corrected : std_logic_vector(DataOutFifo'range);  -- même taille que D_in
+        begin
+        -- Copier D_in dans la variable
+        DataOutFifo_corrected := DataOutFifo;
 
-	Error_Locator : process(match_found)
-		variable DataOutFifo_corrected : std_logic_vector(DataOutFifo'range);  -- même taille que D_in
-	begin
-	-- Copier D_in dans la variable
-	DataOutFifo_corrected := DataOutFifo;
-
-	if match_found then
-		if search_end_1 = '1' then
-			DataOutFifo_corrected(p2) := DataOutFifo_corrected(p2) xor '1';
-		end if;
-		if search_end_2 = '1' then
-			DataOutFifo_corrected(p1) := DataOutFifo_corrected(p2) xor '1';
-			DataOutFifo_corrected(p2) := DataOutFifo_corrected(p2) xor '1';
-		end if;
-	end if;
-
-	end process;
+        if match_found then
+            if search_end_1 = '1' then
+                DataOutFifo_corrected(p2) := DataOutFifo_corrected(p2) xor '1';
+        end if;
+        if search_end_2 = '1' then
+            DataOutFifo_corrected(p1) := DataOutFifo_corrected(p2) xor '1';
+            DataOutFifo_corrected(p2) := DataOutFifo_corrected(p2) xor '1';
+        end if;
+    end process;
 
     -- =========================================================================
     -- Combinational Process : Mux
     -- =========================================================================
-	Mux : process(Addr, D_in, DataOutFifo_corrected)
+    Mux : process(Addr, D_in, DataOutFifo_corrected)
     begin
         case Addr is
             when '0' =>

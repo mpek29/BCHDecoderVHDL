@@ -261,7 +261,7 @@ begin
     -- =========================================================================
     -- Combinational Process : Error_Corrector
     -- =========================================================================
-    Error_Locator : process(match_found)
+    Error_Corrector : process(match_found)
         variable DataOutFifo_corrected : std_logic_vector(DataOutFifo'range);  -- même taille que D_in
         begin
         -- Copier D_in dans la variable

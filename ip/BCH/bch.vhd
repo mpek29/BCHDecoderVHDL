@@ -1,6 +1,103 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+
+-- ============================================================================
+-- Entity Declaration : FSM
+-- ============================================================================
+entity MyFSM is
+    Port (
+        synRst_n,FifoEmpty,Decod: in std_logic;
+        search_end : in std_logic_vector(1 downto 0);
+        nb_data : in std_logic_vector(2 downto 0);
+        p : in integer(0 to 31);
+        wrFifo2,LdDec,razDecod,setDone,start_calc,start_check,RdFifo,initFIFO : out std_logic;
+        
+    );
+end entity ME;
+
+-- ============================================================================
+-- Architecture Definition : rtl
+-- ============================================================================
+architecture rtl of ME is
+
+    -- Type de l'automate d'ï¿½tat
+    type EtatsME is (Wait, Start, Decoding,Errorlocation,EndDecod);
+
+    -- Signaux d'ï¿½tat courant et suivant
+    signal EtatME_cr : EtatsME;
+    signal EtatME_sv : EtatsME;
+
+
+begin
+
+    ----------------------------------------------------------------------------
+    -- Synchronous Process : RegEtatME
+    -- Description         : Mise ï¿½ jour de l?ï¿½tat courant sur front montant
+    ----------------------------------------------------------------------------
+    FSM : process(Clk)
+    begin
+        if rising_edge(Clk) then
+            if synRst_n = '0' then
+                EtatME_cr <= Wait;
+            else
+                EtatME_cr <= EtatME_sv;
+            end if;
+        end if;
+    end process FSM;
+
+    ----------------------------------------------------------------------------
+    -- Combinational Process : CombinaisonME
+    -- Description         : Logique de transition d?ï¿½tat et gï¿½nï¿½ration des sorties
+    ----------------------------------------------------------------------------
+    CombinatoryFSM : process(EtatME_cr, Decod, search_end,p,RdOut, FifoEmpty,nbData)
+    begin
+        -- Valeurs par dï¿½faut des sorties
+        razStart <= '0';
+        setIrqF  <= '0';
+        RdFifo   <= '0';
+        DAck     <= '0';
+        init     <= '0';
+
+        -- Par dï¿½faut, rester dans le mï¿½me ï¿½tat
+        EtatME_sv <= EtatME_cr;
+
+        -- Logique de transition et de commande
+        case EtatME_cr is
+
+            when InitFSM =>
+                init      <= '1';
+                EtatME_sv <= Repos;
+
+            when Repos =>
+                init      <= '0';
+                if (Start = '1') and (DRq = '1') then
+                    RdFifo    <= '1';
+                    DAck      <= '1';
+                    EtatME_sv <= Tx;
+                end if;
+
+            when Tx =>
+                init      <= '0';
+                if FifoEmpty = '1' then
+                    razStart  <= '1';
+                    setIrqF   <= '1';
+                    EtatME_sv <= Repos;
+                elsif (DRq = '1') and (FifoEmpty = '0') then
+                    RdFifo    <= '1';
+                    DAck      <= '1';
+                    EtatME_sv <= Tx;
+                end if;
+
+        end case;
+    end process CombinaisonME;
+
+end architecture rtl;
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 -- ============================================================================
 -- Entity Declaration : BCH
 -- ============================================================================
@@ -16,6 +113,13 @@ entity BCH is
         Irq_BCH_n : out std_logic
     );
 end BCH;
+
+-- ============================================================================
+-- Architecture Definition : rtl
+-- ============================================================================
+architecture rtl of ME is
+
+end architecture rtl;
 
 -- ============================================================================
 -- Architecture Definition : BCH
@@ -38,7 +142,7 @@ architecture bch_arch of BCH is
     -- Signaux internes Decodeur
     signal RdOut : std_logic_vector(1 downto 0) := "00";
     signal ldCtrl     : std_logic := '0';
-    signal wrFifo     : std_logic := '0';
+    signal wrFifo1     : std_logic := '0';
     
     
     -- Signaux internes FIFO
@@ -73,6 +177,9 @@ architecture bch_arch of BCH is
     signal start_check_1    : std_logic := '0';
     signal start_check_2   : std_logic := '0';
     signal razDecod,razDone,setDone, Cmux0 : std_logic;
+    signal p : integer;
+    signal nb_data : std_logic(2 downto 0);
+    signal wrFifo2 : std_logic;
 
     -- Table des syndromes (ROM)
     type syndrome_table_type is array (0 to 30) of std_logic_vector(9 downto 0);
@@ -90,8 +197,8 @@ architecture bch_arch of BCH is
 	signal IrqEn    : std_logic := '0';
 	signal Decod    : std_logic := '0';
 	signal start_check : std_logic := '0';
-	signal Rst_n    : std_logic := '0';  -- Si utilisé
-	signal RdFifo   : std_logic := '0';  -- Si utilisé
+	signal Rst_n    : std_logic := '0';  -- Si utilisï¿½
+	signal RdFifo   : std_logic := '0';  -- Si utilisï¿½
 
 
 begin
@@ -349,7 +456,7 @@ begin
             FifoLevel  => FifoLevel,
         
             -- Decoder
-            WrFifo     => wrFifo,
+            WrFifo     => wrFifo1,
         
             -- FSM
             RdFifo     => RdFifo,

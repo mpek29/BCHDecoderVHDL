@@ -220,7 +220,7 @@ Resolution = ps
 UserTimeUnit = default
 
 ; Default run length
-RunLength = 100
+RunLength = 100 ps
 
 ; Maximum iterations that can be run without advancing simulation time
 IterationLimit = 5000
@@ -402,7 +402,7 @@ ConcurrentFileLimit = 40
 ;    wlf   {wlf file only}
 ; msgmode = both
 [Project]
-; Warning -- Do not edit the project properties directly.
+** Warning: ; Warning -- Do not edit the project properties directly.
 ;            Property names are dynamic in nature and property
 ;            values have special syntax.  Changing property data directly
 ;            can result in a corrupt MPF file.  All project properties
@@ -410,11 +410,9 @@ ConcurrentFileLimit = 40
 Project_Version = 6
 Project_DefaultLib = work
 Project_SortMethod = unused
-Project_Files_Count = 2
-Project_File_0 = C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd
-Project_File_P_0 = vhdl_novitalcheck 0 file_type vhdl group_id 0 cover_nofec 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 vhdl_enable0In 0 folder {Top Level} last_compile 1383837117 vhdl_disableopt 0 cover_excludedefault 0 vhdl_vital 0 vhdl_warn1 1 vhdl_showsource 0 vhdl_explicit 1 vhdl_warn2 1 vhdl_0InOptions {} cover_covercells 0 vhdl_warn3 1 vhdl_options {} cover_optlevel 3 voptflow 1 vhdl_warn4 1 ood 0 toggle - vhdl_warn5 1 compile_to work cover_noshort 0 compile_order 1 dont_compile 0 cover_nosub 0 vhdl_use93 2002
-Project_File_1 = C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd
-Project_File_P_1 = vhdl_novitalcheck 0 file_type vhdl group_id 0 cover_nofec 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 vhdl_enable0In 0 folder {Top Level} last_compile 1749217978 vhdl_disableopt 0 cover_excludedefault 0 vhdl_vital 0 vhdl_warn1 1 vhdl_showsource 0 vhdl_explicit 1 vhdl_warn2 1 vhdl_0InOptions {} cover_covercells 0 vhdl_warn3 1 vhdl_options {} cover_optlevel 3 voptflow 1 vhdl_warn4 1 ood 0 toggle - vhdl_warn5 1 compile_to work cover_noshort 0 compile_order 0 dont_compile 0 cover_nosub 0 vhdl_use93 2002
+Project_Files_Count = 1
+Project_File_0 = C:/Users/Flori/Documents/Studies/ENIB/S9/CSP/Labo2/RessourcesCSP_Labo2_DE0_CV/DE0_CV/ip/UART_FIFO/synthese/simulation/modelsim/uart_fifo.vo
+Project_File_P_0 = cover_toggle 0 vlog_protect 0 file_type verilog group_id 0 cover_exttoggle 0 cover_nofec 0 cover_cond 0 vlog_1995compat 0 vlog_nodebug 0 folder {Top Level} last_compile 1748298554 cover_fsm 0 cover_branch 0 vlog_noload 0 vlog_enable0In 0 cover_excludedefault 0 vlog_disableopt 0 cover_covercells 0 vlog_hazard 0 vlog_showsource 0 cover_optlevel 3 voptflow 1 ood 1 vlog_0InOptions {} toggle - vlog_options {} compile_to work vlog_upper 0 cover_noshort 0 compile_order 0 dont_compile 0 cover_expr 0 cover_stmt 0
 Project_Sim_Count = 0
 Project_Folder_Count = 0
 Echo_Compile_Output = 0
@@ -462,5 +460,5 @@ DEBUGDATABASE_DoubleClick = Edit
 DEBUGDATABASE_CustomDoubleClick = 
 DEBUGARCHIVE_DoubleClick = Edit
 DEBUGARCHIVE_CustomDoubleClick = 
-Project_Major_Version = 10
-Project_Minor_Version = 5
+Project_Major_Version = 2020
+Project_Minor_Version = 1

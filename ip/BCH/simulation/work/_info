@@ -10,111 +10,85 @@ z2
 cModel Technology
 dC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH_DECODER
 Ebch
-w1748164418
-Z0 DPx4 ieee 11 numeric_std 0 22 aU^R8eGcicLcUFIaBQSL>3
-Z1 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
-Z2 DPx4 ieee 14 std_logic_1164 0 22 cVAk:aDinOX8^VGI1ekP<3
-!i122 23
-Z3 dC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/simulation
-8C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd
-FC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd
+Z0 w1749217978
+Z1 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z2 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z3 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+Z4 dC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/simulation
+Z5 8C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd
+Z6 FC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd
 l0
-L8 1
-VRSmVa9@JAU;OO0gfGBg^^0
-!s100 McKJ43Lcko0J8RJm_@=R^2
-Z4 OV;C;2020.1;71
+L7
+VLEmcVN:h_;b:MjAf<;SEK0
+!s100 dG@Y6cLB]lDh9zUmGZYFj1
+Z7 OV;C;10.5b;63
 32
-Z5 !s110 1748164426
+Z8 !s110 1749217989
 !i10b 1
-Z6 !s108 1748164426.000000
-!s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd|
-!s107 C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd|
+Z9 !s108 1749217989.000000
+Z10 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd|
+Z11 !s107 C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/bch.vhd|
 !i113 1
-Z7 o-work work -2002 -explicit
-Z8 tExplicit 1 CvgOpt 0
-Efifo_nmots_mbits
-Z9 w1383837117
-R0
-R1
-R2
-!i122 24
-R3
-Z10 8C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd
-Z11 FC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd
-l0
-L5 1
-VmGL][]H:kI^j6lX9MAKP33
-!s100 b2<8LJNbUzaPnLn<jP1?J2
-R4
-32
-R5
-!i10b 1
-R6
-Z12 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd|
-Z13 !s107 C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd|
-!i113 1
-R7
-R8
-Artl
-R0
-R1
-R2
+Z12 o-work work -2002 -explicit
+Z13 tExplicit 1 CvgOpt 0
+Abch_arch
 Z14 DEx4 work 16 fifo_nmots_mbits 0 22 mGL][]H:kI^j6lX9MAKP33
-!i122 24
-l19
-Z15 L15 48
-Z16 VN=Z:DLj4Y[`m8T0[BN04[1
-Z17 !s100 YNaW:ei_CNi4a745m4`SF3
-R4
+R1
+R2
+R3
+DEx4 work 3 bch 0 22 LEmcVN:h_;b:MjAf<;SEK0
+l97
+L23
+Vgm=F0`0A:h64U>8CT:cFU3
+!s100 iPE_[NbTgSSQQPbjbMo3W3
+R7
 32
-R5
+R8
 !i10b 1
-R6
+R9
+R10
+R11
+!i113 1
 R12
 R13
-!i113 1
-R7
-R8
-Epwm
-Z18 w1742568108
-R0
+Efifo_nmots_mbits
+Z15 w1383837117
 R1
 R2
-!i122 0
-Z19 dC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH_DECODER/simulation
-Z20 8C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH_DECODER/bch_decoder.vhd
-Z21 FC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH_DECODER/bch_decoder.vhd
+R3
+R4
+Z16 8C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd
+Z17 FC:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd
 l0
-L24 1
-V9ihh3H7b4V6TSjFImJk_E1
-!s100 ;oRLLcnoEDzmlOZ@nOj7Y1
-R4
-32
-Z22 !s110 1747990664
-!i10b 1
-Z23 !s108 1747990663.000000
-Z24 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH_DECODER/bch_decoder.vhd|
-Z25 !s107 C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH_DECODER/bch_decoder.vhd|
-!i113 1
+L5
+VmGL][]H:kI^j6lX9MAKP33
+!s100 b2<8LJNbUzaPnLn<jP1?J2
 R7
+32
 R8
+!i10b 1
+R9
+Z18 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd|
+Z19 !s107 C:/Users/Flori/Documents/Project/Tech/Electronics/digital-system-design/BCHDecoderVHDL/ip/BCH/FIFO_nMots_mBits.vhd|
+!i113 1
+R12
+R13
 Artl
-R0
 R1
 R2
-DEx4 work 3 pwm 0 22 9ihh3H7b4V6TSjFImJk_E1
-!i122 0
-l47
-L36 173
-V^gKKOGQl8@hIoWOIEj;e03
-!s100 jIzX:NA@4kUKU_[1GU[>Z2
-R4
-32
-R22
-!i10b 1
-R23
-R24
-R25
-!i113 1
+R3
+R14
+l19
+L15
+Z20 VN=Z:DLj4Y[`m8T0[BN04[1
+Z21 !s100 YNaW:ei_CNi4a745m4`SF3
 R7
+32
 R8
+!i10b 1
+R9
+R18
+R19
+!i113 1
+R12
+R13

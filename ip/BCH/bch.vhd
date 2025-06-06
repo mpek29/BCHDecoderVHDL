@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-
 -- ============================================================================
 -- Entity Declaration : BCH
 -- ============================================================================
@@ -76,7 +75,7 @@ architecture bch_arch of BCH is
     signal razDecod,razDone,setDone, Cmux0 : std_logic;
 
     -- Table des syndromes (ROM)
-    type syndrome_table_type is array (0 to 31) of std_logic_vector(9 downto 0);
+    type syndrome_table_type is array (0 to 30) of std_logic_vector(9 downto 0);
     constant SYNDROME_TABLE : syndrome_table_type := (
         "0000000001","0000000010", "0000000100", "0000001000", "0000010000",
         "0000100000", "0001000000", "0010000000", "0100000000", "1000000000",
@@ -86,6 +85,14 @@ architecture bch_arch of BCH is
         "1011111010", "0101000011", "1010000110", "0110111011", "1101110110",
         "1001011011"
     );
+
+	-- oublie
+	signal IrqEn    : std_logic := '0';
+	signal Decod    : std_logic := '0';
+	signal start_check : std_logic := '0';
+	signal Rst_n    : std_logic := '0';  -- Si utilisé
+	signal RdFifo   : std_logic := '0';  -- Si utilisé
+
 
 begin
 
@@ -183,7 +190,7 @@ begin
             when '0' =>
                 BCHFIFOin <= D_In;
             when '1' =>
-                BCHFIFOin <= Decod;
+                BCHFIFOin <= Decoded;
             when others => BCHFIFOin <= (others => 'X');
         
         end case;
@@ -215,7 +222,7 @@ begin
             -- Decompteur
             if start_calc = '1' then
                 nb_stroke <= 31;
-			
+            end if;	
             if nb_stroke > 0 then
                 syndrome(0) <= b0;
                 syndrome(1) <= syndrome(0);
@@ -243,37 +250,44 @@ begin
     Error_Locator : process(Clk)
     begin
         if rising_edge(Clk) then
-            if start_check = '1' then
-                if syndrome = "0000000000" then
-                    error <= ( others => '0');
-                else 
-                    p1 <= 0;
-                    p2 <= 1;
-                end if;
-            end if;
+		if start_check = '1' then
+			p1 <= 0;
+			p2 <= 1;
+		end if;
+		if syndrome = "0000000000" then
+			error <= ( others => '0');
+			search_end <= '1';
+                    	match_found <= "00";
+			
+			if p1 > 29 then
+				-- rien de trouve
+                		error <= (1 => '1', 0 => '1', others => '0');
+                		search_end <= '1';
+                	-- check 1
+                	elsif (SYNDROME_TABLE(p2 - 1) =  syndrome) then 
+                    		search_end <= '1';
+                    		match_found <= "01";
+				-- une erreur trouvee
+                    		error <= (0 => '1', others => '0');
+                	-- check 2
+                	elsif p1 > 0 then -- pas de check si p1 hors table
+                    		if (std_logic_vector(unsigned(SYNDROME_TABLE(p2 - 1)) xor unsigned(SYNDROME_TABLE(p1 - 1))) =  syndrome) then 
+                        		search_end <= '1';
+                        		match_found <= "11";
+					-- deux erreurs trouvees
+                        		error <= (1 => '1', others => '0');
+				end if;
 
-            elsif p2 = 30 then 
-                p1 <= p1+1;
-                p2 <= p1+1;
-
-            elsif p2 < 31 then
-                -- check 1
-                if (SYNDROME_TABLE(p2 - 1) - syndrome) =  0 then 
-                    search_end = '1';
-                    match_found = "01";
-                    error <= (0 => '1', others => '0');
-                -- check 2
-                if p1 > 0 then
-                    if (SYNDROME_TABLE(p2 - 1) xor SYNDROME_TABLE(p1 - 1)) - syndrome =  0 then 
-                        search_end = '1'
-                        match_found = "11"
-                        error <= (1 => '1', others => '0');
-                p2 <= p2+1;
-            if p1 = 29 then
-                error <= (1 => '1', 0 => '1', others => '0');
-                search_end = '1';
-
-            
+            		end if;
+			-- on continue a balayer
+			p2 <= p2 + 1;
+			if p2 > 30 then -- p2 hors table
+				-- Si p2 a balaye tout le tableau on decale p1 et recommence a balayer
+				p1 <= p1 + 1;
+				p2 <= p1 + 1;
+			end if;
+		end if;
+	end if;
     end process;
 
     -- =========================================================================
@@ -291,7 +305,7 @@ begin
             when others =>
                 pre_Decoded <= (others => '0');
         end case;
-        Decoded <= error & pre_Decoded(22 downto 0);
+        Decoded <= error & pre_Decoded(23 downto 0);
     end process;
 
     -- =========================================================================
@@ -307,6 +321,20 @@ begin
             synRst_n <= synRst_n0;
         end if;
     end process SyncReset;
+
+    -- =========================================================================
+    -- Irq_BCH_n
+    -- =========================================================================
+    Irq_Process : process(Clk)
+    begin
+        if rising_edge(Clk) then
+            if IrqEn = '1' then 
+                Irq_BCH_n <= Done;
+            else
+                Irq_BCH_n <= '1'; -- ou '0' selon logique inverse
+            end if;
+        end if;
+    end process Irq_Process;
 
     -- =========================================================================
     -- Instanciation de la FIFO
@@ -332,12 +360,8 @@ begin
         
             DataIn     => BCHFIFOin,
         
-            DataOut    => BCFIFOout   
+            DataOut    => BCHFIFOout   
     );
-    -- =========================================================================
-    -- Irq_BCH_n
-    -- =========================================================================
-	if rising_edge(Clk)
-		if IrqEn = '1' then 
-			Irq_BCH_n <= Done ;
+    
+
 end architecture bch_arch;

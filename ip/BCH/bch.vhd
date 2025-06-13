@@ -29,7 +29,7 @@ architecture bch_arch of BCH is
     signal BCHControl    : std_logic_vector(7 downto 0);
     signal razControl  : std_logic ;
 
-    signal RdOut : std_logic_vector(1 downto 0) := "00";
+    signal RdOut : std_logic_vector(1 downto 0);
     signal ldCtrl     : std_logic ;
     signal wrFifo1     : std_logic ;
 
@@ -44,13 +44,14 @@ architecture bch_arch of BCH is
 
     signal syndrome : std_logic_vector(9 downto 0);
     signal start_calc : std_logic;
-    signal nb_stroke : integer range 0 to 31 := 0;
+    signal nb_stroke : integer range 0 to 32;
+    signal syndrome_done : std_logic;  -- Signal de fin de calcul
+    signal last_cycle : std_logic;
 
-
-    signal p1          : integer;
-    signal p2          : integer;
+    signal p1          : integer range 0 to 32 ;
+    signal p2          : integer range 0 to 32;
     signal no_match    : std_logic ;
-    signal match_found : std_logic_vector(1 downto 0) := "00";
+    signal match_found : std_logic_vector(1 downto 0);
     signal search_end  : std_logic ;
     signal error : std_logic_vector(7 downto 0);
     signal pre_Decoded  : std_logic_vector(31 downto 0);
@@ -58,7 +59,7 @@ architecture bch_arch of BCH is
 
     signal LdDec    : std_logic ;
     signal razDecod,razDone,setDone, Cmux0 : std_logic;
-    signal p : integer;
+    signal p : integer range 0 to 31;
     signal nb_data : std_logic_vector (2 downto 0);
     signal wrFifo2 : std_logic ;
 
@@ -92,7 +93,7 @@ begin
             if razDone = '1' then
                 Done <= '0';
             elsif setDone = '1' then 
-                Done <= '0';
+                Done <= '1';
             end if;
             BCHStatus <= (1 => Done, 6 => FIFOFull, 7 => FIFOEmpty, others => '0');   -- Adresse 2 prend la valeur de Full 
 
@@ -116,13 +117,13 @@ begin
     end process BCHControlRegister;
 
 
-	-- =========================================================================
-	-- Combinational Process : XOR for wrFifo
-	-- =========================================================================
-	Wrprocess : process(wrFifo1,wrFifo2)
-	begin 
-		wrFifo <= wrFifo2 xor wrFifo1;
-	end process Wrprocess;
+    -- =========================================================================
+    -- Combinational Process : XOR for wrFifo
+    -- =========================================================================
+    Wrprocess : process(wrFifo1,wrFifo2)
+    begin 
+        wrFifo <= wrFifo2 xor wrFifo1;
+    end process Wrprocess;
 
 
     -- =========================================================================
@@ -131,15 +132,15 @@ begin
     Decoder : process(Addr, Rd, Wr)
 
     begin
-		  ldCtrl <= '0';
+        ldCtrl <= '0';
         wrFifo1 <= '0';
         RdOut <= (others => '0');
-		  razDone <= '0';
+        razDone <= '0';
         case Addr is
             when "00" => -- Status
                 if Rd = '1' then -- read only
                     RdOut <= "00";
-						  razDone <= '1';
+                        razDone <= '1';
                 end if;
             when "01" => -- Control
                 if Rd = '1' then -- read
@@ -199,7 +200,8 @@ begin
     -- =========================================================================
     ShiftRegister : process (clk, synRst_n)
     begin
-			if synRst_n = '0' then shift_reg <= (others => '0');
+			if synRst_n = '0' then
+                shift_reg <= (others => '0');
 			elsif rising_edge(clk) then
             if LdDec = '1' then
                 shift_reg <= BCHFifoOut(30 downto 0);
@@ -215,14 +217,20 @@ begin
     -- =========================================================================
     -- Synchronous Process : Syndrome_Calculator
     -- =========================================================================
-    Syndrome_Calculator : process (Clk,synRst_n)
+    Syndrome_Calculator : process (Clk, synRst_n)
     begin
-		if synRst_n = '0' then syndrome <= (others => '0');
-		elsif rising_edge(clk) then
-            -- Decompteur
+        if synRst_n = '0' then
+            syndrome <= (others => '0');
+            nb_stroke <= 0;
+            syndrome_done <= '0';
+            last_cycle <= '0';
+        elsif rising_edge(Clk) then
             if start_calc = '1' then
                 nb_stroke <= 31;
-            end if;	
+                syndrome_done <= '0';
+                last_cycle <= '0';
+            end if;
+
             if nb_stroke > 0 then
                 syndrome(0) <= b0;
                 syndrome(1) <= syndrome(0);
@@ -234,10 +242,25 @@ begin
                 syndrome(7) <= syndrome(6);
                 syndrome(8) <= b0 xor syndrome(7);
                 syndrome(9) <= b0 xor syndrome(8);
+
+                if nb_stroke = 1 then
+                    last_cycle <= '1';  -- Marqueur pour activer syndrome_done au prochain cycle
+                else
+                    last_cycle <= '0';
+                end if;
+
                 nb_stroke <= nb_stroke - 1;
+            else
+                last_cycle <= '0';
+            end if;
+
+            -- Active le signal de fin un cycle après le dernier calcul
+            if last_cycle = '1' then
+                syndrome_done <= '1';
             end if;
         end if;
     end process Syndrome_Calculator;
+
 
     -- =========================================================================
     -- Synchronous Process : Error_Locator
@@ -245,50 +268,57 @@ begin
 
     Error_Locator : process(Clk, synRst_n)
     begin
-			if synRst_n = '0' then error <= (others => '0');
-			elsif rising_edge(clk) then
+        if synRst_n = '0' then
+            error <= (others => '0');
+	        p1 <= 0;
+            p2 <= 0;
+            search_end <= '0';
+            match_found <= "10";
+        elsif rising_edge(clk) then
             if start_check = '1' then
                 p1 <= 0;
                 p2 <= 1;
             end if;
-            if syndrome = "0000000000" then
-                error <= ( others => '0');
-                search_end <= '1';
-                match_found <= "00";   
-            if p1 > 29 then
-        -- rien de trouve
-                error <= (1 => '1', 0 => '1', others => '0');
-                search_end <= '1';
-            -- check 1
-            elsif (SYNDROME_TABLE(p2 - 1) =  syndrome) then 
-                search_end <= '1';
-                match_found <= "01";
-        -- une erreur trouvee
-                error <= (0 => '1', others => '0');
-            -- check 2
-            elsif p1 > 0 then -- pas de check si p1 hors table
-                if (std_logic_vector(unsigned(SYNDROME_TABLE(p2 - 1)) xor unsigned(SYNDROME_TABLE(p1 - 1))) =  syndrome) then 
+            
+            if syndrome_done = '1' then -- verifie que notre syndrome contient bien une valeur calcule et pas celle par defaut
+                if syndrome = "0000000000" then
+                    error <= (others => '0');
                     search_end <= '1';
-                    match_found <= "11";
-            -- deux erreurs trouvees
-                    error <= (1 => '1', others => '0');
+                    match_found <= "00";
+                elsif p1 > 29 then
+                    -- rien de trouvé
+                    error <= (1 => '1', 0 => '1', others => '0');
+                    search_end <= '1';
+                elsif (SYNDROME_TABLE(p2 - 1) = syndrome) then
+                    -- une erreur trouvée
+                    search_end <= '1';
+                    match_found <= "01";
+                    error <= (0 => '1', others => '0');
+                elsif p1 > 0 and p2 > 0 then
+                    if std_logic_vector(unsigned(SYNDROME_TABLE(p2 - 1)) xor unsigned(SYNDROME_TABLE(p1 - 1))) = syndrome then
+                        -- deux erreurs trouvées
+                        search_end <= '1';
+                        match_found <= "11";
+                        error <= (1 => '1', others => '0');
+                    end if;
                 end if;
             end if;
-                -- on continue a balayer
+
+            -- on continue à balayer
             p2 <= p2 + 1;
-            if p2 > 30 then -- p2 hors table
-            -- Si p2 a balaye tout le tableau on decale p1 et recommence a balayer
+            if p2 > 30 then
+                -- Si p2 a balayé tout le tableau, on décale p1 et recommence à balayer
                 p1 <= p1 + 1;
                 p2 <= p1 + 1;
             end if;
         end if;
-	end if;
     end process Error_Locator;
+
 
     -- =========================================================================
     -- Combinational Process : Error_Corrector
     -- =========================================================================
-    Error_Corrector : process(BCHFifoOut, match_found, error,p1,p2,pre_Decoded)
+    Error_Corrector : process(BCHFifoOut, match_found, error,p1,p2)
     begin
         pre_Decoded <= BCHFifoOut;
         case match_found is

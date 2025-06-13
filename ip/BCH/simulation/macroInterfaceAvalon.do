@@ -4,7 +4,7 @@ transcript quietly
 #****                       SIMULATION PARAMETERS                             ****
 #*********************************************************************************
 #
-set Th 40					;# DEFINE THE CLOCK PERIOD: Th (in ns)
+set Th 40				;# DEFINE THE CLOCK PERIOD: Th (in ns)
 set dt 2					;# DEFINE THE DELAY BEFORE SIGNALS ARE STABILIZED: dt (in ns)
 echo "\n *****     SIMULATION PARAMETERS     *****"
 echo "==>  Clock frequency: [expr 1e3/$Th] MHz"
@@ -18,7 +18,7 @@ echo "==>  Signals stabilized [expr $dt] ns after the clock edge"
 #
 set ReadWait 0				;# DEFINE THE NUMBER OF WAIT STATE(S) FOR READ CYCLES
 set WriteWait 0				;# DEFINE THE NUMBER OF WAIT STATE(S) FOR WRITE CYCLES
-echo "\n *****     AVALON INTERCONNEXION INTERFACE     *****"
+echo "\n *****     AVALON INTERCONNECTION INTERFACE     *****"
 echo "==> Read cycles with [expr $ReadWait] wait state(s)"
 echo "==> Write cycles with [expr $WriteWait] wait state(s)"
 #
@@ -26,12 +26,10 @@ echo "==> Write cycles with [expr $WriteWait] wait state(s)"
 #     ===> Register Mapping
 #          format: set <register_name> <register_number>
 #
-set Status 0
-set SetCtrl 0
-set Period 1
-set DCycle 2
-set NbCycles 3
-set ClrCtrl 4
+set RegSTATUS 0
+set RegCTRL 1
+set RegFIFO 2
+
 #
 #
 #     ===> AVALON interface signals <--- connection ---> peripheral ports
@@ -39,27 +37,27 @@ set ClrCtrl 4
 #
 #          Access path and bus sizes
 #
-set CheminVersPeripherique /pwm					;# DEFINE THE PATH TO THE PERIPHERAL
-set BusAddressSize 3							;# DEFINE THE SIZE OF THE ADDRESS BUS (bits)
-set BusDataSize 32								;# DEFINE THE SIZE OF THE DATA BUS (bits)
+set CheminVersPeripherique /bch					;# DEFINE THE PATH TO THE PERIPHERAL
+set BusAddressSize 2							;# DEFINE THE SIZE OF THE ADDRESS BUS (bits)
+set BusDataSize 8								;# DEFINE THE SIZE OF THE DATA BUS (bits)
 #
 #
 #     ===> Signals Connection
 #
 set HorlogePeripherique Clk						;# DEFINE THE CLOCK SIGNAL
-set ResetPeripherique Reset_n					;# DEFINE THE RESET SIGNAL
-set AdresseRegistrePeripherique RegsAddr		;# DEFINE THE ADDRESS BUS
-set AccesLecturePeripherique ReadPWM			;# DEFINE READ ACCESS SIGNAL
-set AccesEcriturePeripherique WritePWM			;# DEFINIR WRITE ACCESS SIGNAL
-set BusEcritureDonneesPeripherique DInPWM		;# DEFINE THE INPUT DATA BUS
-set BusLectureDonneesPeripherique DOutPWM		;# DEFINE THE OUTPUT DATA BUS
-set InterruptRequest IrqPWM						;# DEFINE THE INTERRUPT REQUEST SIGNAL
+set ResetPeripherique Rst_n					    ;# DEFINE THE RESET SIGNAL
+set AdresseRegistrePeripherique Addr		        ;# DEFINE THE ADDRESS BUS
+set AccesLecturePeripherique Rd			    ;# DEFINE READ ACCESS SIGNAL
+set AccesEcriturePeripherique Wr			    ;# DEFINE WRITE ACCESS SIGNAL
+set BusEcritureDonneesPeripherique DataIn		    ;# DEFINE THE INPUT DATA BUS
+set BusLectureDonneesPeripherique DataOut		    ;# DEFINE THE OUTPUT DATA BUS
+set InterruptRequest irq						;# DEFINE THE INTERRUPT REQUEST SIGNAL
 #
 #
 #     ===> Polarity of signals
 #
 set NiveauActif	1								;# DEFINE THE POLARITY OF SIGNALS (EXCEPT RESET)
-set NiveauActifReset 0							;# DEFINE POLARITY OF RESET SIGNAL
+set NiveauActifReset 0						;# DEFINE POLARITY OF RESET SIGNAL
 set DureeReset 2.5								;# DEFINE THE RESET DURATION
 
 
@@ -70,15 +68,22 @@ set DureeReset 2.5								;# DEFINE THE RESET DURATION
 #****  Write cycle format: {<Clock period number> <Register> <Value>}         ****
 #*********************************************************************************
 set CyclesAvalon {
-	{20 Period 10#100}
-	{25 DCycle 10#0}
-	{30 SetCtrl 2#1}
-	{1000 DCycle 10#1}
-	{2000 DCycle 10#99}
-	{3000 DCycle 10#100}
-	{4000 ClrCtrl 2#1}
+	{20 BCHStatus}
+    {25 BCHControl}
+	{30 BCHFifoIn 0b# 0100 0011 0101 1010 0000 1011 1101 0101 }
+	{35 BCHFifoIn 0b# 0100 0011 0001 1010 0000 1011 1100 0101 } #ERREUR DU b4 et b22
+	{40 BCHStatus}
+	{45 BCHFifoIn 0b# 0110 0011 1000 1110 0001 1100 0101 0111 }
+	{50 BCHFifoIn 0b# 0110 0011 1000 1110 0000 1110 0101 0111} #ERREUR DU b9 et b12
+	{55 BCHStatus}
+	{60 BCHControl 16# 0000 0011}
+	{65 wait 100}	 
+	{170 BCHStatus}
+	{175 BCHStatus}
+	{180 BCHStatus}
+	{185 BCHStatus}
+	{190 BCHStatus}
 }
-
 #*********************************************************************************
 #****              END OF VALUES TO BE DEFINED                               *****
 #*********************************************************************************
@@ -92,10 +97,10 @@ set CyclesAvalon {
 #****              GENERATION OF SIGNALS                                     *****
 #*********************************************************************************
 #
-#     Conversion décimal/binaire pour lien entre offset registres en décimal et
-#     forçage en format binaire
-#     PE : i : valeur décimale à convertir
-#          width : nombre de bits du résultat de la conversion
+#     Conversion dï¿½cimal/binaire pour lien entre offset registres en dï¿½cimal et
+#     forï¿½age en format binaire
+#     PE : i : valeur dï¿½cimale ï¿½ convertir
+#          width : nombre de bits du rï¿½sultat de la conversion
 #
 proc dec2bin {i {width {}}} {	;#returns the binary representation of $i
 								;# width determines the length of the returned string (left truncated or added left 0)
@@ -126,7 +131,7 @@ switch $BusDataSize {
 	16 { set BusEcritureDonneeInactif 16#XXXX }
 	32 { set BusEcritureDonneeInactif 16#XXXXXXXX }
 	default {
-		echo "\n !!  Wrong data bus size"
+		echo "\n !! Wrong data bus size"
 		exit
 	}
 }
@@ -139,7 +144,7 @@ set CycleHorlogeCourant 0
 
 echo "\n *****     INITIAL VALUE OF SIMULATED SIGNALS     *****"
 #
-#Forçages initiaux et reset
+#Forï¿½ages initiaux et reset
 #
 force -freeze sim:${CheminVersPeripherique}/$HorlogePeripherique 1 0, 0 [expr $Th/2] ns -r $Th ns
 force -freeze sim:${CheminVersPeripherique}/$AccesEcriturePeripherique $NiveauInactif 0
@@ -151,8 +156,19 @@ echo "==> initial Reset applied at state [expr $NiveauInactifReset] during [expr
 
 echo "\n *****     SIMULATION STARTS     *****"
 for {set i 0} {$i < [llength $CyclesAvalon]} {incr i} {
-	set AccessType [llength $[lindex $CyclesAvalon $i]]
-	set CycleHorlogeCourant [lindex $CyclesAvalon $i 0]
+	set Instruction [lindex $CyclesAvalon $i]
+	set AccessType [llength $Instruction]
+	set CycleHorlogeCourant [lindex $Instruction 0]
+
+	# === Traitement spÃ©cial pour les instructions "wait" ===
+	if {[string tolower [lindex $Instruction 1]] eq "wait"} {
+    	set NombreCyclesWait [lindex $Instruction 2]
+    	set NouveauCycle [expr $CycleHorlogeCourant + $NombreCyclesWait]
+    	echo "==> Wait $NombreCyclesWait cycles from t=$CycleHorlogeCourant to t=$NouveauCycle"
+    	set CycleHorlogeCourant $NouveauCycle
+   		continue
+	}
+
 	set AdresseRegistre [lindex $CyclesAvalon $i 1]
 	set AdresseBinaireRegistre "2#"
 	set AdresseBinaireRegistre [append AdresseBinaireRegistre [dec2bin [expr $$AdresseRegistre] $BusAddressSize]]
@@ -166,7 +182,7 @@ for {set i 0} {$i < [llength $CyclesAvalon]} {incr i} {
 			force -freeze sim:${CheminVersPeripherique}/$AdresseRegistrePeripherique $AdresseBinaireRegistre [expr $DateDebutCycle] ns
 			force -freeze sim:${CheminVersPeripherique}/$AdresseRegistrePeripherique $AdresseRegistrePeripheriqueInactive [expr $DateFinCycleRead] ns
 		}
-		3 {										;# Trois arguments = cycle d'écriture
+		3 {										;# Trois arguments = cycle d'ï¿½criture
 			set Donnee [lindex $CyclesAvalon $i 2]
 			set DateDebutCycle {$CycleHorlogeCourant*$Th+$dt}
 			set DateFinCycleWrite {($CycleHorlogeCourant+$WriteWait+1)*$Th + $dt}

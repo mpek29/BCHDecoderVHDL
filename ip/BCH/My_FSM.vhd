@@ -4,7 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity MyFSM is 
     port (
-        synRst_n, FifoEmpty, Decod, search_end, Clk: in std_logic; 
+        synRst_n, FifoEmpty, Decod, syndrome_done, search_end, Clk: in std_logic; 
         wrFifo2, LdDec, razDecod, setDone, start_calc, start_check, RdFifo, initFIFO, Cmux0: out std_logic;
         RdOut: in std_logic_vector(1 downto 0);
         FifoLevel: in std_logic_vector(2 downto 0)
@@ -17,7 +17,6 @@ architecture FSM_arch of MyFSM is
 
     signal EtatME_cr : EtatsME;
     signal EtatME_sv : EtatsME;
-    signal p :  integer range 0 to 31 := 0;
     signal nb_data : std_logic_vector(2 downto 0);
 
 begin
@@ -33,7 +32,7 @@ begin
 		
     end process;
 
-    process(EtatME_cr, Decod, search_end, RdOut, FifoEmpty,FifoLevel,nb_data,p)
+    process(EtatME_cr, Decod, search_end, RdOut, FifoEmpty, FifoLevel, nb_data, syndrome_done)
     begin
         wrFifo2 <= '0';
         LdDec  <= '0';
@@ -44,9 +43,7 @@ begin
         RdFifo     <= '0';
         initFIFO     <= '0';
         Cmux0     <= '0';
-		  initFIFO     <= '0';
         nb_data     <= "000";
-		  p     <= 0;
         EtatME_sv <= EtatME_cr;
 
         case EtatME_cr is
@@ -62,9 +59,8 @@ begin
                 elsif FifoEmpty = '0' and Decod = '1' then 
                     EtatME_sv <= Decoding;
                     LdDec <= '1'; 
-                    p <= 31; 
                     RdFifo <= '1';
-                elsif nb_data = "000" then 
+                elsif nb_data = "000" and search_end = '1' then 
                     EtatME_sv <= EndDecod;
                     setDone <= '1';
                     razDecod <= '1';
@@ -72,9 +68,8 @@ begin
 
             when Decoding => 
                 start_calc <= '1';
-                if p > 0 then 
+                if syndrome_done = '0' then 
                     EtatME_sv <= Decoding;
-                    p <= p - 1;
                 else 
                     EtatME_sv <= Errorlocation;
                     start_check <= '1';
@@ -87,12 +82,12 @@ begin
                     EtatME_sv <= start;
                     Cmux0 <= '1';
                     wrFifo2 <= '1';
-                    nb_data <= std_logic_vector(unsigned(nb_data) - 1);
+                    --nb_data <= std_logic_vector(unsigned(nb_data) - 1);
                 end if;
 
             when EndDecod => 
                 if FifoEmpty = '1' then 
-                    EtatME_sv <= Idle;
+                    EtatME_sv <= start;
                 elsif FifoEmpty = '0' and RdOut = "01" then 
                     RdFifo <= '1';
                 end if;

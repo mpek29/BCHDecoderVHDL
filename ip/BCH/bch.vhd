@@ -60,7 +60,7 @@ architecture bch_arch of BCH is
     signal LdDec    : std_logic ;
     signal razDecod,razDone,setDone, Cmux0 : std_logic;
     signal p : integer range 0 to 31;
-    signal nb_data : std_logic_vector (2 downto 0);
+    --signal nb_data : std_logic_vector (2 downto 0);
     signal wrFifo2 : std_logic ;
 
     type syndrome_table_type is array (0 to 30) of std_logic_vector(9 downto 0);
@@ -85,22 +85,22 @@ begin
     -- =========================================================================
     -- Synchronous Process : BCHStatus et BCHControl
     -- =========================================================================
-    BCHStatusRegister : process(Clk, synRst_n)
+    BCHStatusRegister : process (Clk, synRst_n)
     begin
 			if synRst_n = '0' then
 				BCHStatus <= (others => '0');  -- Reset de BCHStatus
 			elsif rising_edge(clk) then
-            if razDone = '1' then
-                Done <= '0';
-            elsif setDone = '1' then 
-                Done <= '1';
-            end if;
-            BCHStatus <= (1 => Done, 6 => FIFOFull, 7 => FIFOEmpty, others => '0');   -- Adresse 2 prend la valeur de Full 
+                if razDone = '1' then
+                    Done <= '0';
+                elsif setDone = '1' then 
+                    Done <= '1';
+                end if;
+                BCHStatus <= (1 => Done, 6 => FIFOFull, 7 => FIFOEmpty, others => '0');   -- Adresse 2 prend la valeur de Full 
 
         end if;
     end process BCHStatusRegister;
 
-    BCHControlRegister : process(Clk, synRst_n)
+    BCHControlRegister : process (Clk, synRst_n)
     begin
 			if synRst_n = '0' then
 				BCHControl <= (others => '0');  -- Reset de BCHStatus
@@ -120,11 +120,7 @@ begin
     -- =========================================================================
     -- Combinational Process : XOR for wrFifo
     -- =========================================================================
-    Wrprocess : process(wrFifo1,wrFifo2)
-    begin 
-        wrFifo <= wrFifo2 xor wrFifo1;
-    end process Wrprocess;
-
+    wrFifo <= wrFifo2 xor wrFifo1;
 
     -- =========================================================================
     -- Combinational Process : Decoder
@@ -198,7 +194,7 @@ begin
     -- =========================================================================
     -- Synchronous Process : ShiftRegister
     -- =========================================================================
-    ShiftRegister : process (clk, synRst_n)
+    ShiftRegister : process (Clk, synRst_n)
     begin
 			if synRst_n = '0' then
                 shift_reg <= (others => '0');
@@ -232,16 +228,16 @@ begin
             end if;
 
             if nb_stroke > 0 then
-                syndrome(0) <= b0;
+                syndrome(0) <= b0 xor syndrome(9) ;
                 syndrome(1) <= syndrome(0);
                 syndrome(2) <= syndrome(1);
-                syndrome(3) <= b0 xor syndrome(2);
+                syndrome(3) <= (b0 xor syndrome(9)) xor syndrome(2);
                 syndrome(4) <= syndrome(3);
-                syndrome(5) <= b0 xor syndrome(4);
-                syndrome(6) <= b0 xor syndrome(5);
+                syndrome(5) <= (b0 xor syndrome(9)) xor syndrome(4);
+                syndrome(6) <= (b0 xor syndrome(9)) xor syndrome(5);
                 syndrome(7) <= syndrome(6);
-                syndrome(8) <= b0 xor syndrome(7);
-                syndrome(9) <= b0 xor syndrome(8);
+                syndrome(8) <= (b0 xor syndrome(9)) xor syndrome(7);
+                syndrome(9) <= (b0 xor syndrome(9)) xor syndrome(8);
 
                 if nb_stroke = 1 then
                     last_cycle <= '1';  -- Marqueur pour activer syndrome_done au prochain cycle
@@ -266,7 +262,7 @@ begin
     -- Synchronous Process : Error_Locator
     -- =========================================================================
 
-    Error_Locator : process(Clk, synRst_n)
+    Error_Locator : process (Clk, synRst_n)
     begin
         if synRst_n = '0' then
             error <= (others => '0');
@@ -274,13 +270,14 @@ begin
             p2 <= 0;
             search_end <= '0';
             match_found <= "10";
-        elsif rising_edge(clk) then
+        elsif rising_edge(Clk) then
             if start_check = '1' then
                 p1 <= 0;
                 p2 <= 1;
+                search_end <= '0';
             end if;
-            
-            if syndrome_done = '1' then -- verifie que notre syndrome contient bien une valeur calcule et pas celle par defaut
+
+            if syndrome_done = '1'then -- verifie que notre syndrome contient bien une valeur calcule et pas celle par defaut
                 if syndrome = "0000000000" then
                     error <= (others => '0');
                     search_end <= '1';
@@ -303,13 +300,14 @@ begin
                     end if;
                 end if;
             end if;
-
-            -- on continue à balayer
-            p2 <= p2 + 1;
-            if p2 > 30 then
-                -- Si p2 a balayé tout le tableau, on décale p1 et recommence à balayer
-                p1 <= p1 + 1;
-                p2 <= p1 + 1;
+            if search_end = '0' then
+                -- on continue à balayer
+                p2 <= p2 + 1;
+                if p2 > 30 then
+                    -- Si p2 a balayé tout le tableau, on décale p1 et recommence à balayer
+                    p1 <= p1 + 1;
+                    p2 <= p1 + 1;
+                end if;
             end if;
         end if;
     end process Error_Locator;
@@ -318,20 +316,39 @@ begin
     -- =========================================================================
     -- Combinational Process : Error_Corrector
     -- =========================================================================
-    Error_Corrector : process(BCHFifoOut, match_found, error,p1,p2)
+    Error_Corrector : process(BCHFifoOut, match_found, p1, p2)
+        variable mask1, mask2, final_mask : std_logic_vector(31 downto 0);
     begin
-        pre_Decoded <= BCHFifoOut;
+        -- Initialisation des masques
+        mask1 := (others => '0');
+        mask2 := (others => '0');
+
+        -- Génération du premier masque si position valide
+        if p1 >= 0 and p1 < 32 then
+            mask1(p1) := '1';
+        end if;
+
+        -- Génération du second masque si position valide
+        if p2 >= 0 and p2 < 32 then
+            mask2(p2) := '1';
+        end if;
+
+        -- Sélection du masque total selon le nombre d'erreurs
         case match_found is
+            when "00" =>
+                final_mask := (others => '0'); -- Pas de correction
             when "01" =>
-                pre_Decoded(p2) <= BCHFifoOut(p2) xor '1';
-            when "11" =>
-                pre_Decoded(p1) <= BCHFifoOut(p2) xor '1';
-                pre_Decoded(p2) <= BCHFifoOut(p2) xor '1';
+                final_mask := mask1;           -- Corrige 1 bit
+            when "10" =>
+                final_mask := mask1 xor mask2; -- Corrige 2 bits
             when others =>
-                pre_Decoded <= (others => '0');
+                final_mask := (others => '0'); -- Sécurité : pas de correction
         end case;
-        Decoded <= error & pre_Decoded(23 downto 0);
+
+        -- Application de la correction
+        Decoded <= BCHFifoOut xor final_mask;
     end process Error_Corrector;
+
 
     -- =========================================================================
     -- Synchronous Reset Synchronization
@@ -350,7 +367,7 @@ begin
     -- =========================================================================
     -- Irq_BCH_n
     -- =========================================================================
-    Irq_Process : process(Clk)
+    Irq_Process : process (Clk)
     begin
         if rising_edge(Clk) then
             if IrqEn = '1' then 
@@ -364,6 +381,7 @@ begin
     -- =========================================================================
     -- Instanciation de la FIFO
     -- =========================================================================
+
     FIFO : entity work.FIFO_nMots_mBits
         generic map (  	DATA_WIDTH => 32,
            		FIFO_SIZE => 2 )
@@ -371,21 +389,26 @@ begin
             Horloge    => Clk,
             -- FSM
             initFifo   => initFIFO,
-            FifoLevel  => FifoLevel,
+          
         
             -- Decoder
             WrFifo     => WrFifo,
         
             -- FSM
             RdFifo     => RdFifo,
+
+DataIn     => BCHFifoIn,
+DataOut    => BCHFifoOut ,
         
+
+FifoLevel  => FifoLevel,
             -- Status
             FifoEmpty  => FifoEmpty,
-            FifoFull   => FifoFull,
+            FifoFull   => FifoFull
         
-            DataIn     => BCHFifoIn,
+            
         
-            DataOut    => BCHFifoOut   
+              
     );
     
 
@@ -396,6 +419,8 @@ begin
 		FifoEmpty => FifoEmpty,
 
 		Decod => Decod,
+
+        syndrome_done => syndrome_done,
 
 		search_end => search_end, 
 

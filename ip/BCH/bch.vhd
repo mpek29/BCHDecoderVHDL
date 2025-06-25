@@ -40,6 +40,7 @@ architecture bch_arch of BCH is
     signal rdFIFO : std_logic;
 
     signal shift_reg : std_logic_vector(30 downto 0);
+    signal stock_reg : std_logic_vector(31 downto 0);
     signal b0 : std_logic;
 
     signal syndrome : std_logic_vector(9 downto 0);
@@ -50,7 +51,7 @@ architecture bch_arch of BCH is
 
     signal p1          : integer range 0 to 32 ;
     signal p2          : integer range 0 to 32;
-    signal no_match    : std_logic ;
+    --signal no_match    : std_logic ;
     signal match_found : std_logic_vector(1 downto 0);
     signal search_end  : std_logic ;
     signal error : std_logic_vector(7 downto 0);
@@ -60,7 +61,7 @@ architecture bch_arch of BCH is
     signal LdDec    : std_logic ;
     signal razDecod,razDone,setDone, Cmux0 : std_logic;
     signal p : integer range 0 to 31;
-    --signal nb_data : std_logic_vector (2 downto 0);
+    signal nb_data : std_logic_vector (2 downto 0);
     signal wrFifo2 : std_logic ;
 
     type syndrome_table_type is array (0 to 30) of std_logic_vector(9 downto 0);
@@ -210,6 +211,18 @@ begin
         end if;
     end process ShiftRegister;
 
+    StockRegister : process (Clk, synRst_n)
+    begin
+			if synRst_n = '0' then
+                stock_reg <= (others => '0');
+			elsif rising_edge(clk) then
+            if LdDec = '1' then
+                stock_reg <= BCHFifoOut;
+            end if;   
+            end if;
+    end process StockRegister;
+
+
     -- =========================================================================
     -- Synchronous Process : Syndrome_Calculator
     -- =========================================================================
@@ -250,7 +263,7 @@ begin
                 last_cycle <= '0';
             end if;
 
-            -- Active le signal de fin un cycle après le dernier calcul
+            -- Active le signal de fin un cycle apr�s le dernier calcul
             if last_cycle = '1' then
                 syndrome_done <= '1';
             end if;
@@ -283,17 +296,17 @@ begin
                     search_end <= '1';
                     match_found <= "00";
                 elsif p1 > 29 then
-                    -- rien de trouvé
+                    -- rien de trouv�
                     error <= (1 => '1', 0 => '1', others => '0');
                     search_end <= '1';
                 elsif (SYNDROME_TABLE(p2 - 1) = syndrome) then
-                    -- une erreur trouvée
+                    -- une erreur trouv�e
                     search_end <= '1';
                     match_found <= "01";
                     error <= (0 => '1', others => '0');
                 elsif p1 > 0 and p2 > 0 then
                     if std_logic_vector(unsigned(SYNDROME_TABLE(p2 - 1)) xor unsigned(SYNDROME_TABLE(p1 - 1))) = syndrome then
-                        -- deux erreurs trouvées
+                        -- deux erreurs trouv�es
                         search_end <= '1';
                         match_found <= "11";
                         error <= (1 => '1', others => '0');
@@ -301,10 +314,10 @@ begin
                 end if;
             end if;
             if search_end = '0' then
-                -- on continue à balayer
+                -- on continue � balayer
                 p2 <= p2 + 1;
                 if p2 > 30 then
-                    -- Si p2 a balayé tout le tableau, on décale p1 et recommence à balayer
+                    -- Si p2 a balay� tout le tableau, on d�cale p1 et recommence � balayer
                     p1 <= p1 + 1;
                     p2 <= p1 + 1;
                 end if;
@@ -316,24 +329,24 @@ begin
     -- =========================================================================
     -- Combinational Process : Error_Corrector
     -- =========================================================================
-    Error_Corrector : process(BCHFifoOut, match_found, p1, p2)
+    Error_Corrector : process(BCHFifoOut, match_found, p1, p2,error,stock_reg)
         variable mask1, mask2, final_mask : std_logic_vector(31 downto 0);
     begin
         -- Initialisation des masques
         mask1 := (others => '0');
         mask2 := (others => '0');
 
-        -- Génération du premier masque si position valide
+        -- G�n�ration du premier masque si position valide
         if p1 >= 0 and p1 < 32 then
             mask1(p1) := '1';
         end if;
 
-        -- Génération du second masque si position valide
+        -- G�n�ration du second masque si position valide
         if p2 >= 0 and p2 < 32 then
             mask2(p2) := '1';
         end if;
 
-        -- Sélection du masque total selon le nombre d'erreurs
+        -- S�lection du masque total selon le nombre d'erreurs
         case match_found is
             when "00" =>
                 final_mask := (others => '0'); -- Pas de correction
@@ -342,11 +355,12 @@ begin
             when "10" =>
                 final_mask := mask1 xor mask2; -- Corrige 2 bits
             when others =>
-                final_mask := (others => '0'); -- Sécurité : pas de correction
+                final_mask := (others => '0'); -- S�curit� : pas de correction
         end case;
 
         -- Application de la correction
-        Decoded <= BCHFifoOut xor final_mask;
+        pre_Decoded <= stock_reg xor final_mask;
+        Decoded <= error & "000" & pre_Decoded(20 downto 0);
     end process Error_Corrector;
 
 

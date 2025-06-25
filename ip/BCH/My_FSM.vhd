@@ -60,7 +60,7 @@ begin
                     EtatME_sv <= Decoding;
                     LdDec <= '1'; 
                     RdFifo <= '1';
-                elsif nb_data = "000" and search_end = '1' then 
+                elsif nb_data = "000" and RdOut = "01" then 
                     EtatME_sv <= EndDecod;
                     setDone <= '1';
                     razDecod <= '1';

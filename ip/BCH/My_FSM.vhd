@@ -89,6 +89,7 @@ begin
                 if FifoEmpty = '1' then 
                     EtatME_sv <= start;
                 elsif FifoEmpty = '0' and RdOut = "01" then 
+		    EtatME_sv <= EndDecod;
                     RdFifo <= '1';
                 end if;
         end case;

@@ -79,7 +79,12 @@ set CyclesAvalon {
     {34 BCHFifoIn 16#435A7BD5}
     {36 BCHStatus}
     {38 BCHControl 8#03}
-	{4000 BCHStatus}
+    {270 BCHStatus}
+    {272 BCHFifoOut}
+    {274 BCHFifoOut}
+    {276 BCHFifoOut}
+    {278 BCHFifoOut}
+    {280 BCHStatus}
 }
 #*********************************************************************************
 #****              END OF VALUES TO BE DEFINED                               *****

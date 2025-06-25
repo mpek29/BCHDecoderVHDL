@@ -64,6 +64,8 @@ begin
                     EtatME_sv <= EndDecod;
                     setDone <= '1';
                     razDecod <= '1';
+		    RdFifo <= '1';
+
                 end if;
 
             when Decoding => 
